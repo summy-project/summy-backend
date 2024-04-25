@@ -17,7 +17,7 @@ export class CreateMenuDto extends BaseDTO {
   sort: number;
 
   // 状态，1 启用，2 禁用
-  status: number;
+  menuStatus: string;
 
   // 父级
   parentId: string;
