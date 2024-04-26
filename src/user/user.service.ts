@@ -123,7 +123,7 @@ export class UserService {
 
     // 根据 DTO 中的属性进行模糊搜索条件构建
     Object.entries(userFilterDto).forEach(([key, value]) => {
-      console.log("query", key, value);
+      // console.log("query", key, value);
       if (value && key !== "roleIds") {
         query = query.andWhere(`user.${key} LIKE :${key}`, {
           [key]: `%${value}%`
