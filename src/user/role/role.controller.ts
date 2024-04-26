@@ -30,6 +30,7 @@ export class RoleController {
    * @returns 角色列表
    */
   @ApiOperation({ summary: "获取角色列表" })
+  @ApiBody({ type: RoleFilterDto })
   @Post("findAll")
   findAll(@Body() roleFilterDto: RoleFilterDto) {
     return this.roleService.findAll(roleFilterDto);

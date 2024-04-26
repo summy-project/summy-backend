@@ -1,7 +1,9 @@
 import { Controller, Get, Post, Body, Delete, Query } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiQuery } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiQuery, ApiBody } from "@nestjs/swagger";
 
 import { InviteCodeService } from "./invite-code.service";
+
+import { InviteCodeFilterDto } from "./dto/invite-code-filter.dto";
 import { CreateInviteCodeDto } from "./dto/create-invite-code.dto";
 import { UpdateInviteCodeDto } from "./dto/update-invite-code.dto";
 
@@ -26,9 +28,10 @@ export class InviteCodeController {
    * @returns 邀请码列表
    */
   @ApiOperation({ summary: "获取邀请码列表" })
-  @Get("findAll")
-  findAll() {
-    return this.inviteCodeService.findAll();
+  @ApiBody({ type: InviteCodeFilterDto })
+  @Post("findAll")
+  findAll(@Body() inviteCodeFilterDto: InviteCodeFilterDto) {
+    return this.inviteCodeService.findAll(inviteCodeFilterDto);
   }
 
   /**

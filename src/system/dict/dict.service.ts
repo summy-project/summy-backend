@@ -1,9 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { CreateDictDto } from "./dto/create-dict.dto";
-import { UpdateDictDto } from "./dto/update-dict.dto";
-import { Dict } from "./entities/dict.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
+
+import { Dict } from "./entities/dict.entity";
+
+import { DictFilterDto } from "./dto/dict-filter.dto";
+import { CreateDictDto } from "./dto/create-dict.dto";
+import { UpdateDictDto } from "./dto/update-dict.dto";
 
 /**
  * 字典服务类，提供对字典实体的增删改查等操作
@@ -29,8 +32,21 @@ export class DictService {
    * 查找所有字典项
    * @returns 所有字典项的数组
    */
-  findAll() {
-    return this.dictRepository.find();
+  async findAll(dictFilterDto: DictFilterDto) {
+    let query = this.dictRepository.createQueryBuilder("dict");
+
+    // 根据 DTO 中的属性进行模糊搜索条件构建
+    Object.entries(dictFilterDto).forEach(([key, value]) => {
+      // console.log("query", key, value);
+      if (value) {
+        query = query.andWhere(`dict.${key} LIKE :${key}`, {
+          [key]: `%${value}%`
+        });
+      }
+    });
+
+    const queryList = await query.getMany();
+    return queryList;
   }
 
   /**

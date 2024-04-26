@@ -1,7 +1,9 @@
 import { Controller, Get, Post, Body, Delete, Query } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiQuery } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiQuery, ApiBody } from "@nestjs/swagger";
 
 import { DictService } from "./dict.service";
+
+import { DictFilterDto } from "./dto/dict-filter.dto";
 import { CreateDictDto } from "./dto/create-dict.dto";
 import { UpdateDictDto } from "./dto/update-dict.dto";
 
@@ -21,10 +23,11 @@ export class DictController {
 
   // 获取字典列表
   @ApiOperation({ summary: "获取字典列表" })
-  @Get("findAll")
-  findAll() {
+  @ApiBody({ type: DictFilterDto })
+  @Post("findAll")
+  findAll(@Body() dictFilterDto: DictFilterDto) {
     // 调用服务获取所有字典
-    return this.dictService.findAll();
+    return this.dictService.findAll(dictFilterDto);
   }
 
   // 获取单一字典信息

@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
+import { InviteCodeFilterDto } from "./dto/invite-code-filter.dto";
 import { CreateInviteCodeDto } from "./dto/create-invite-code.dto";
 import { UpdateInviteCodeDto } from "./dto/update-invite-code.dto";
 
@@ -36,8 +37,22 @@ export class InviteCodeService {
    * 查询所有邀请码。
    * @returns 返回邀请码实体数组。
    */
-  async findAll() {
-    return await this.inviteCodeRepository.find();
+  async findAll(inviteCodeFilterDto: InviteCodeFilterDto) {
+    // return await this.inviteCodeRepository.find();
+    let query = this.inviteCodeRepository.createQueryBuilder("invite_code");
+
+    // 根据 DTO 中的属性进行模糊搜索条件构建
+    Object.entries(inviteCodeFilterDto).forEach(([key, value]) => {
+      // console.log("query", key, value);
+      if (value) {
+        query = query.andWhere(`invite_code.${key} LIKE :${key}`, {
+          [key]: `%${value}%`
+        });
+      }
+    });
+
+    const queryList = await query.getMany();
+    return queryList;
   }
 
   /**
