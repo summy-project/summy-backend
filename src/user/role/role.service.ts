@@ -4,9 +4,11 @@ import { Repository } from "typeorm";
 
 import { RESERVED_ROLES } from "src/common/constants";
 
+import { Role } from "./entities/role.entity";
+
+import { RoleFilterDto } from "./dto/role-filter.dto";
 import { CreateRoleDto } from "./dto/create-role.dto";
 import { UpdateRoleDto } from "./dto/update-role.dto";
-import { Role } from "./entities/role.entity";
 
 /**
  * 提供角色相关的服务，包括创建、查找、更新和删除角色。
@@ -51,8 +53,21 @@ export class RoleService {
    * 查找所有角色。
    * @returns 所有角色的列表。
    */
-  async findAll() {
-    return await this.roleRepository.find();
+  async findAll(roleFilterDto: RoleFilterDto) {
+    let query = this.roleRepository.createQueryBuilder("role");
+
+    // 根据 DTO 中的属性进行模糊搜索条件构建
+    Object.entries(roleFilterDto).forEach(([key, value]) => {
+      // console.log("query", key, value);
+      if (value) {
+        query = query.andWhere(`role.${key} LIKE :${key}`, {
+          [key]: `%${value}%`
+        });
+      }
+    });
+
+    const roleList = await query.getMany();
+    return roleList;
   }
 
   /**

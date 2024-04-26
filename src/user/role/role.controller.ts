@@ -2,6 +2,8 @@ import { Controller, Get, Post, Body, Delete, Query } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiQuery, ApiBody } from "@nestjs/swagger";
 
 import { RoleService } from "./role.service";
+
+import { RoleFilterDto } from "./dto/role-filter.dto";
 import { CreateRoleDto } from "./dto/create-role.dto";
 import { UpdateRoleDto } from "./dto/update-role.dto";
 import { FindSomeRolesDto } from "./dto/find-some-roles.dto";
@@ -28,9 +30,9 @@ export class RoleController {
    * @returns 角色列表
    */
   @ApiOperation({ summary: "获取角色列表" })
-  @Get("findAll")
-  findAll() {
-    return this.roleService.findAll();
+  @Post("findAll")
+  findAll(@Body() roleFilterDto: RoleFilterDto) {
+    return this.roleService.findAll(roleFilterDto);
   }
 
   /**
