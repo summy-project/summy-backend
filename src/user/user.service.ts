@@ -8,6 +8,7 @@ import { RESERVED_USERS } from "src/common/constants";
 
 import { User } from "./entities/user.entity";
 
+import { UserFilterDto } from "./dto/user-filter.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 
@@ -103,9 +104,9 @@ export class UserService {
    * @param includeDisabledUsers 是否包含已删除的用户，默认为false。
    * @returns 返回用户列表。
    */
-  async findAll() {
+  async findAll(userFilterDto: UserFilterDto) {
     // 使用QueryBuilder查询所有用户，只允许查出用户状态是启用或者禁用的用户（也就是说状态为“删除”的用户不会查出来）
-    const query = this.userRepository
+    let query = this.userRepository
       .createQueryBuilder("user")
       .select([
         "id",
@@ -119,6 +120,16 @@ export class UserService {
         "remark"
       ])
       .where("user.hasDeleted = :hasDeleted", { hasDeleted: false });
+
+    // 根据 DTO 中的属性进行模糊搜索条件构建
+    Object.entries(userFilterDto).forEach(([key, value]) => {
+      console.log("query", key, value);
+      if (value && key !== "roleIds") {
+        query = query.andWhere(`user.${key} LIKE :${key}`, {
+          [key]: `%${value}%`
+        });
+      }
+    });
 
     const userList = await query.getRawMany();
 

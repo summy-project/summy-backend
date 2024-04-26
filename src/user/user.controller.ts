@@ -14,6 +14,8 @@ import { ApiTags, ApiOperation, ApiQuery, ApiBody } from "@nestjs/swagger";
 import { CheckAdminGuard } from "src/common/base/guards/check-admin.guard";
 
 import { UserService } from "./user.service";
+
+import { UserFilterDto } from "./dto/user-filter.dto";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 
@@ -38,9 +40,9 @@ export class UserController {
    * 查询所有用户信息
    * @returns 所有用户信息列表
    */
-  @Get("findAll")
-  findAll() {
-    return this.userService.findAll();
+  @Post("findAll")
+  findAll(@Body() userFilterDto: UserFilterDto = {}) {
+    return this.userService.findAll(userFilterDto);
   }
 
   /**
