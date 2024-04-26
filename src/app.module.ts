@@ -30,7 +30,7 @@ import { BaseGuard } from "./common/base/guards/base.guard";
       entities: [__dirname + "/**/*.entity{.js,.ts}"],
       port: config.database.port,
       synchronize: true,
-      logging: ["error"]
+      logging: ["error", "warn", "query"]
     }),
     AuthModule,
     UserModule,
