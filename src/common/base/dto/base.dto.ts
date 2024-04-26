@@ -11,5 +11,7 @@ export abstract class BaseDTO {
   updatedTime: Date;
   createdBy: string;
   updatedBy: string;
+  status: string;
+  hasDeleted: boolean;
   remark: string;
 }

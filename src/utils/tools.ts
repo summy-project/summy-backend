@@ -1,4 +1,5 @@
 // 公共 TS 方法
+import { SelectDataType } from "src/types";
 
 /**
  * 构建树结构函数
@@ -56,4 +57,18 @@ export async function sha256(message: string) {
   return Array.prototype.map
     .call(new Uint8Array(hashBuffer), (x) => ("00" + x.toString(16)).slice(-2))
     .join("");
+}
+
+/**
+ * 根据提供的选择数据数组和输入值，获取对应的标签字符串。
+ * @param arr 一个包含多个记录的对象数组，每个记录有一个 `value` 和 `label` 属性。
+ * @param input 需要查找的值，用于匹配数组中某个记录的 `value` 属性。
+ * @returns 如果找到匹配的记录，则返回该记录的`label`属性值；如果没有找到，则返回空字符串。
+ */
+export function getValueBySelectData(
+  arr: SelectDataType[],
+  input: string | number
+): string {
+  const resultValue = arr.find((item) => item.value === input);
+  return resultValue ? resultValue.label : "未指定";
 }

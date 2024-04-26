@@ -22,9 +22,6 @@ export class CreateUserDto extends BaseDTO {
   // 生日
   birthDay: Date;
 
-  // 状态值，1 为正常，2 为禁用，3 为删除。
-  userStatus: string;
-
   // 头像
   avatarUrl: string;
 

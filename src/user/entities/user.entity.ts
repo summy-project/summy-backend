@@ -38,10 +38,6 @@ export class User extends BaseEntity {
   @Column({ nullable: true })
   hasDeleted: boolean;
 
-  // 状态值
-  @Column({ nullable: true })
-  userStatus: string;
-
   // 头像 URL
   @Column({ nullable: true })
   avatarUrl: string;

@@ -42,7 +42,7 @@ export class AuthService {
       );
       console.log(userData.password, loginDto.password);
       if (hasPasswordOK) {
-        if (userData.userStatus === "2") {
+        if (userData.status === "2") {
           throw new HttpException("用户已被禁用。", HttpStatus.FORBIDDEN);
         }
 

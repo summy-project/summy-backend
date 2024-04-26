@@ -24,10 +24,6 @@ export class Menu extends BaseEntity {
   @Column()
   sort: number;
 
-  // 状态，1 启用，2 禁用
-  @Column()
-  menuStatus: string;
-
   // 父级
   @Column({ nullable: true })
   parentId: string;

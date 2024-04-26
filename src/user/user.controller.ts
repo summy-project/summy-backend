@@ -84,12 +84,12 @@ export class UserController {
   }
 
   /**
-   * 逻辑删除一个用户，即将 userStatus 改为 3，这样默认查不出来。
+   * 逻辑删除一个用户，即将 status 改为 3，这样默认查不出来。
    * @param id
    * @returns 删除操作的结果
    */
   @ApiOperation({
-    summary: "逻辑删除一个用户，即将 userStatus 改为 3，这样默认查不出来。"
+    summary: "逻辑删除一个用户，即将 status 改为 3，这样默认查不出来。"
   })
   @ApiQuery({ name: "id", description: "用户ID" })
   @Post("remove")

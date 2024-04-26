@@ -114,7 +114,7 @@ export class UserService {
         "createdTime",
         "updatedTime",
         "gender",
-        "userStatus",
+        "status",
         "realName",
         "phone",
         "remark"
@@ -227,7 +227,7 @@ export class UserService {
   }
 
   /**
-   * 逻辑删除一个用户，即将 userStatus 改为 3，这样默认查不出来。
+   * 逻辑删除一个用户，即将 status 改为 3，这样默认查不出来。
    * @param id 用户的ID。
    * @returns 返回删除操作的结果。
    */
