@@ -97,6 +97,9 @@ export class AuthService {
       throw new HttpException("用户已存在。", HttpStatus.CONFLICT);
     }
 
+    const userData = await this.userService.create(signupDto);
+    let inviteData = null;
+
     // 配置了邀请码注册的情况下，验证邀请码是否存在并使用
     if (config.signUpWithInviteCode) {
       const inviteCodeExists = await this.inviteCodeService.findOne(
@@ -105,13 +108,13 @@ export class AuthService {
       if (!inviteCodeExists) {
         throw new HttpException("邀请码不存在", HttpStatus.BAD_REQUEST);
       }
-      await this.inviteCodeService.useInviteCode(
+      inviteData = await this.inviteCodeService.useInviteCode(
         signupDto.inviteCode,
         signupDto.id
       );
     }
 
-    return await this.userService.create(signupDto);
+    return { userData, inviteData };
   }
 
   async setupProject(setupDto: SetupDto) {

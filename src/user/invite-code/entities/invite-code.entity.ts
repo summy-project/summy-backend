@@ -1,8 +1,10 @@
-import { Column, Entity } from "typeorm";
+import { Entity, JoinColumn, OneToOne } from "typeorm";
 import { BaseEntity } from "src/common/base/entities/base.entity";
+import { User } from "src/user/entities/user.entity";
 
 @Entity()
 export class InviteCode extends BaseEntity {
-  @Column()
-  usedUserId: string;
+  @OneToOne(() => User, (user) => user.inviteCode)
+  @JoinColumn()
+  usedUser: User;
 }

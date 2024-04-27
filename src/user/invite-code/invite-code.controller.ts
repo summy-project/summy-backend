@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Delete, Query } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Delete,
+  Query,
+  UseInterceptors,
+  ClassSerializerInterceptor
+} from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiQuery, ApiBody } from "@nestjs/swagger";
 
 import { InviteCodeService } from "./invite-code.service";
@@ -41,6 +50,7 @@ export class InviteCodeController {
    */
   @ApiOperation({ summary: "获取单一邀请码信息" })
   @ApiQuery({ name: "id", description: "邀请码ID" })
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get("findOne")
   findOne(@Query() query: { id: string }) {
     return this.inviteCodeService.findOne(query.id);

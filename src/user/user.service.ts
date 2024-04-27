@@ -246,14 +246,23 @@ export class UserService {
   }
 
   /**
+   * 获取用户数据，仅仅包括用户信息本身
+   * @returns 返回用户信息。
+   */
+  async findUserDataPure(id: string) {
+    const entityData = await this.userRepository.findOne({
+      where: { id }
+    });
+    return entityData;
+  }
+
+  /**
    * 检查用户是否存在
    * 请注意：这个方法不能和 findOne() 混为一谈！
    * @return 存在就返回这个用户的信息，不存在就返回 null。
    */
   async checkUserExists(id: string) {
-    const userData = await this.userRepository.findOne({
-      where: { id }
-    });
+    const userData = await this.findUserDataPure(id);
     if (userData) {
       return userData;
     } else {

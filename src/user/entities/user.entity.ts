@@ -1,7 +1,8 @@
 import { BaseEntity } from "src/common/base/entities/base.entity";
-import { Column, Entity, JoinTable, ManyToMany } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, OneToOne } from "typeorm";
 import { Role } from "../role/entities/role.entity";
 import { Exclude } from "class-transformer";
+import { InviteCode } from "../invite-code/entities/invite-code.entity";
 
 @Entity()
 export class User extends BaseEntity {
@@ -46,4 +47,7 @@ export class User extends BaseEntity {
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable({ name: "users_roles" })
   roles: Role[];
+
+  @OneToOne(() => InviteCode, (inviteCode) => inviteCode.usedUser)
+  inviteCode: InviteCode;
 }

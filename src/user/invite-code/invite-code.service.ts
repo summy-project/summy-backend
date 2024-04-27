@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
@@ -8,6 +8,7 @@ import { UpdateInviteCodeDto } from "./dto/update-invite-code.dto";
 
 import { InviteCode } from "./entities/invite-code.entity";
 
+import { UserService } from "../user.service";
 /**
  * 邀请码服务类，提供创建、查询、更新和删除邀请码的功能。
  */
@@ -18,6 +19,7 @@ export class InviteCodeService {
    * @param inviteCodeRepository 邀请码的TypeORM仓库，用于数据操作。
    */
   constructor(
+    private userService: UserService,
     @InjectRepository(InviteCode)
     private readonly inviteCodeRepository: Repository<InviteCode>
   ) {}
@@ -28,6 +30,7 @@ export class InviteCodeService {
    * @returns 返回创建的邀请码实体。
    */
   async create(createRoleDto: CreateInviteCodeDto) {
+    // 不支持创建邀请码的时候直接赋予对应用户。
     return await this.inviteCodeRepository.save(
       this.inviteCodeRepository.create(createRoleDto)
     );
@@ -39,7 +42,9 @@ export class InviteCodeService {
    */
   async findAll(inviteCodeFilterDto: InviteCodeFilterDto) {
     // return await this.inviteCodeRepository.find();
-    let query = this.inviteCodeRepository.createQueryBuilder("invite_code");
+    let query = this.inviteCodeRepository
+      .createQueryBuilder("invite_code")
+      .leftJoinAndSelect("invite_code.usedUser", "usedUser");
 
     // 根据 DTO 中的属性进行模糊搜索条件构建
     Object.entries(inviteCodeFilterDto).forEach(([key, value]) => {
@@ -52,7 +57,13 @@ export class InviteCodeService {
     });
 
     const queryList = await query.getMany();
-    return queryList;
+    return queryList.map((item) => {
+      return {
+        ...item,
+        usedUserId: item.usedUser?.id || "",
+        usedUserName: item.usedUser?.userName || ""
+      };
+    });
   }
 
   /**
@@ -61,7 +72,15 @@ export class InviteCodeService {
    * @returns 返回找到的邀请码实体。
    */
   async findOne(id: string) {
-    return await this.inviteCodeRepository.findOne({ where: { id } });
+    const entityData = await this.inviteCodeRepository.findOne({
+      where: { id },
+      relations: ["usedUser"]
+    });
+    return {
+      ...entityData,
+      usedUserId: entityData.usedUser?.id || "",
+      usedUserName: entityData.usedUser?.userName || ""
+    };
   }
 
   /**
@@ -93,11 +112,7 @@ export class InviteCodeService {
   async checkIfInviteCodeUsed(id: string) {
     // 检查这个 ID 对应的数据里面 usedUserId 是否为 null 或者空字符串，如果是，则没有被使用。
     const data = await this.findOne(id);
-    if (
-      !data.usedUserId ||
-      data.usedUserId === null ||
-      data.usedUserId === ""
-    ) {
+    if (!data.usedUser) {
       return false;
     } else {
       return true;
@@ -111,6 +126,10 @@ export class InviteCodeService {
    * @returns 返回更新后的邀请码信息
    */
   async useInviteCode(id: string, usedUserId: string) {
-    return await this.inviteCodeRepository.update(id, { usedUserId });
+    const userData = await this.userService.findUserDataPure(usedUserId);
+    if (!userData) {
+      throw new HttpException("用户不存在", HttpStatus.NOT_FOUND);
+    }
+    return await this.inviteCodeRepository.update(id, { usedUser: userData });
   }
 }
