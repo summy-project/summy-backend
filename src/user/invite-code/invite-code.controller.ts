@@ -38,6 +38,7 @@ export class InviteCodeController {
    */
   @ApiOperation({ summary: "获取邀请码列表" })
   @ApiBody({ type: InviteCodeFilterDto })
+  @UseInterceptors(ClassSerializerInterceptor)
   @Post("findAll")
   findAll(@Body() inviteCodeFilterDto: InviteCodeFilterDto) {
     return this.inviteCodeService.findAll(inviteCodeFilterDto);
