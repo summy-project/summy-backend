@@ -24,11 +24,14 @@ export class RoleService {
    * @param createRoleDto 创建角色的数据传输对象，包含新角色的信息。
    * @returns 创建的角色实体。
    */
-  async create(createRoleDto: CreateRoleDto) {
+  async create(
+    createRoleDto: CreateRoleDto | UpdateRoleDto,
+    passExistCheck = false
+  ) {
     // 新增和保存的逻辑就是分开的，因此要检测是否保存冲突。
     const findData = await this.findOne(createRoleDto.id);
 
-    if (findData) {
+    if (findData && !passExistCheck) {
       throw new HttpException("角色代号已经被使用。", HttpStatus.CONFLICT);
     }
 
@@ -102,9 +105,7 @@ export class RoleService {
    * @returns 更新后的角色实体。
    */
   async update(updateRoleDto: UpdateRoleDto) {
-    return await this.roleRepository.save(
-      this.roleRepository.create(updateRoleDto)
-    );
+    return await this.create(updateRoleDto, true);
   }
 
   /**

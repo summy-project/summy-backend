@@ -9,6 +9,7 @@ import { UpdateInviteCodeDto } from "./dto/update-invite-code.dto";
 import { InviteCode } from "./entities/invite-code.entity";
 
 import { UserService } from "../user.service";
+
 /**
  * 邀请码服务类，提供创建、查询、更新和删除邀请码的功能。
  */
@@ -29,7 +30,7 @@ export class InviteCodeService {
    * @param createRoleDto 创建邀请码的DTO，包含所需信息。
    * @returns 返回创建的邀请码实体。
    */
-  async create(createRoleDto: CreateInviteCodeDto) {
+  async create(createRoleDto: CreateInviteCodeDto | UpdateInviteCodeDto) {
     // 不支持创建邀请码的时候直接赋予对应用户。
     return await this.inviteCodeRepository.save(
       this.inviteCodeRepository.create(createRoleDto)
@@ -89,9 +90,7 @@ export class InviteCodeService {
    * @returns 返回更新操作的结果。
    */
   async update(updateRoleDto: UpdateInviteCodeDto) {
-    return await this.inviteCodeRepository.save(
-      this.inviteCodeRepository.create(updateRoleDto)
-    );
+    return await this.create(updateRoleDto);
   }
 
   /**

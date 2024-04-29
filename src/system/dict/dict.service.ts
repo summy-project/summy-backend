@@ -22,7 +22,7 @@ export class DictService {
    * @param createDictDto 创建字典项的数据传输对象
    * @returns 创建的字典项实体
    */
-  async create(createDictDto: CreateDictDto) {
+  async create(createDictDto: CreateDictDto | UpdateDictDto) {
     return await this.dictRepository.save(
       this.dictRepository.create(createDictDto)
     );
@@ -64,9 +64,7 @@ export class DictService {
    * @returns 更新后的字典项实体
    */
   async update(updateDictDto: UpdateDictDto) {
-    return await this.dictRepository.save(
-      this.dictRepository.create(updateDictDto)
-    );
+    return await this.dictRepository.save(updateDictDto);
   }
 
   /**
