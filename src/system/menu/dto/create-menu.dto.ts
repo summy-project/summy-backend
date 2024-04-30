@@ -17,7 +17,7 @@ export class CreateMenuDto extends BaseDTO {
   sort: number;
 
   // 父级
-  parentId: string;
+  parentId?: string;
 
   // 路由地址（电脑端）
   pcRoute: string;

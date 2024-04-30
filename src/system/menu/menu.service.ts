@@ -12,6 +12,10 @@ import { Menu } from "./entities/menu.entity";
 import { CreateMenuDto } from "./dto/create-menu.dto";
 import { UpdateMenuDto } from "./dto/update-menu.dto";
 
+export interface ExtendedMenu extends Menu {
+  parentId?: number | null | string;
+}
+
 /**
  * 提供菜单管理的服务。
  */
@@ -27,13 +31,8 @@ export class MenuService {
    * @param createMenuDto 创建菜单项的数据传输对象。
    * @returns 创建的菜单项实体。
    */
-  async create(createMenuDto: CreateMenuDto) {
-    // 新增和保存的逻辑就是分开的，因此要检测是否保存冲突。
-    const entityData = await this.findOne(createMenuDto.id);
-
-    if (entityData) {
-      throw new HttpException("内容已经存在。", HttpStatus.CONFLICT);
-    }
+  async create(createMenuDto: CreateMenuDto | UpdateMenuDto) {
+    const entityData = this.menuRepository.create(createMenuDto);
 
     if (
       !isArray(createMenuDto.roleIds) ||
@@ -46,15 +45,22 @@ export class MenuService {
       );
     }
 
+    if (createMenuDto.parentId && createMenuDto.parentId !== "") {
+      const parentMenu = await this.menuRepository.findOne({
+        where: { id: createMenuDto.parentId }
+      });
+      entityData.parentMenu = parentMenu;
+    } else {
+      entityData.parentMenu = null;
+    }
+
     const rolesList = await this.roleService.findSomeByIds(
       createMenuDto.roleIds
     );
 
     entityData.roles = rolesList;
 
-    return await this.menuRepository.save(
-      this.menuRepository.create(entityData)
-    );
+    return await this.menuRepository.save(entityData);
   }
 
   /**
@@ -63,7 +69,20 @@ export class MenuService {
    */
   async findAll() {
     // 如果存在父级（parentId 不为 null 或者空字符串），则把对应的项目存放到 children 数组中。
-    const allMenus = await this.menuRepository.find();
+    const query = this.menuRepository
+      .createQueryBuilder("menu")
+      .leftJoinAndSelect("menu.parentMenu", "parentMenu");
+
+    const menuList = await query.getMany();
+
+    const allMenus: ExtendedMenu[] = menuList.map((item: ExtendedMenu) => {
+      return {
+        ...item,
+        parentId: item.parentMenu?.id || "",
+        parentName: item.parentMenu?.name || ""
+      };
+    });
+
     const rootMenus = allMenus.filter(
       (menu) => menu.parentId === null || menu.parentId === ""
     );
@@ -85,37 +104,32 @@ export class MenuService {
    * @returns 找到的菜单项实体。
    */
   async findOne(id: string) {
-    return await this.menuRepository.findOne({ where: { id } });
+    const entityData = await this.menuRepository.findOne({
+      where: { id },
+      relations: ["roles"]
+    });
+
+    const roleIds = [];
+
+    entityData.roles.forEach((item) => {
+      roleIds.push(item.id);
+    });
+
+    return {
+      ...entityData,
+      roleIds,
+      parentId: entityData.parentMenu?.id || "",
+      parentName: entityData.parentMenu?.name || ""
+    };
   }
 
   /**
    * 更新一个菜单项。
-   * @param updateDictDto 更新菜单项的数据传输对象。
+   * @param updateMenuDto 更新菜单项的数据传输对象。
    * @returns 更新操作的结果。
    */
   async update(updateMenuDto: UpdateMenuDto) {
-    const entityData = await this.findOne(updateMenuDto.id);
-
-    if (
-      !isArray(updateMenuDto.roleIds) ||
-      !updateMenuDto.roleIds ||
-      updateMenuDto.roleIds.length === 0
-    ) {
-      throw new HttpException(
-        "用户角色不能为空！",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-
-    const rolesList = await this.roleService.findSomeByIds(
-      updateMenuDto.roleIds
-    );
-
-    entityData.roles = rolesList;
-
-    return await this.menuRepository.save(
-      this.menuRepository.create(entityData)
-    );
+    return await this.create(updateMenuDto);
   }
 
   /**

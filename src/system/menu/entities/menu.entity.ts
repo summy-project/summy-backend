@@ -1,4 +1,12 @@
-import { Column, Entity, JoinTable, ManyToMany } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany
+} from "typeorm";
 import { BaseEntity } from "src/common/base/entities/base.entity";
 import { Role } from "src/user/role/entities/role.entity";
 
@@ -24,9 +32,15 @@ export class Menu extends BaseEntity {
   @Column()
   sort: number;
 
-  // 父级
-  @Column({ nullable: true })
-  parentId: string;
+  // 父菜单，只能有一个父菜单
+  @ManyToOne(() => Menu, (menu) => menu.childMenu, { nullable: true })
+  @JoinColumn()
+  parentMenu: Menu | null;
+
+  // 子菜单，可以有多个子菜单
+  @OneToMany(() => Menu, (menu) => menu.parentMenu, { nullable: true })
+  // @JoinColumn()
+  childMenu: Menu[] | null;
 
   // 路由地址（电脑端）
   @Column({ nullable: true })
