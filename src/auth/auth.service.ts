@@ -12,11 +12,13 @@ import { RoleService } from "src/user/role/role.service";
 import { LoginDto } from "./dto/login.dto";
 import { SignupDto } from "./dto/signup.dto";
 import { SetupDto } from "./dto/setup.dto";
+import { MenuService } from "src/system/menu/menu.service";
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
+    private menuService: MenuService,
     private roleService: RoleService,
     private jwtService: JwtService,
     private inviteCodeService: InviteCodeService
@@ -32,15 +34,15 @@ export class AuthService {
     if (loginDto.userId === "visitor") {
       throw new HttpException("游客用户不能登录", HttpStatus.BAD_REQUEST);
     }
-    // userService 里面的 findOne 是业务代码，在这里不适用。
-    const userData = await this.userService.checkUserExists(loginDto.userId);
+
+    const userData = await this.userService.findOne(loginDto.userId);
 
     if (userData) {
       const hasPasswordOK = await argon2.verify(
         userData.password,
         loginDto.password
       );
-      console.log(userData.password, loginDto.password);
+
       if (hasPasswordOK) {
         if (userData.status === "2") {
           throw new HttpException("用户已被禁用。", HttpStatus.FORBIDDEN);
@@ -56,9 +58,12 @@ export class AuthService {
           createdTime: userData.createdTime
         });
 
+        const menuData = await this.menuService.findMyMenu(userData);
+
         return {
           token,
-          userData
+          userData,
+          menuData
         };
       } else {
         throw new HttpException("用户名或密码错误。", HttpStatus.FORBIDDEN);

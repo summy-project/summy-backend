@@ -7,6 +7,7 @@ import { AuthController } from "./auth.controller";
 import { UserModule } from "src/user/user.module";
 import { RoleModule } from "src/user/role/role.module";
 import { InviteCodeModule } from "src/user/invite-code/invite-code.module";
+import { MenuModule } from "src/system/menu/menu.module";
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { InviteCodeModule } from "src/user/invite-code/invite-code.module";
     }),
     InviteCodeModule,
     UserModule,
-    RoleModule
+    RoleModule,
+    MenuModule
   ],
   controllers: [AuthController],
   providers: [AuthService],
