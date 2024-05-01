@@ -31,6 +31,17 @@ export class MenuController {
     return this.menuService.findMyMenu();
   }
 
+  // 根据输入的菜单名字，找出这个菜单的所有角色
+  @ApiOperation({
+    summary:
+      "根据输入的菜单名字，找出这个菜单的所有角色，注意：不能使用菜单大类，要输入具体的菜单名字。"
+  })
+  @Get("findRolesByMenuName")
+  @ApiQuery({ name: "name", description: "菜单名字" })
+  findRolesByMenuName(@Query() query: { name: string }) {
+    return this.menuService.findRolesByMenuName(query.name);
+  }
+
   @ApiOperation({ summary: "获取单一菜单信息" })
   @ApiQuery({ name: "id", description: "菜单ID" })
   @Get("findOne")

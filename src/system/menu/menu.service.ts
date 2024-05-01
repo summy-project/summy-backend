@@ -99,6 +99,34 @@ export class MenuService {
   }
 
   /**
+   * 根据输入的菜单名字，找出这个菜单的所有角色
+   * 注意：不能使用菜单大类。
+   * @returns 菜单项的数组。
+   */
+  async findRolesByMenuName(menuName: string) {
+    const entityData = await this.menuRepository.findOne({
+      where: { name: menuName },
+      relations: ["roles"]
+    });
+
+    if (!entityData) {
+      throw new HttpException("对应菜单不存在", HttpStatus.NOT_FOUND);
+    }
+
+    if (entityData.status === "2") {
+      throw new HttpException("对应菜单已禁用", HttpStatus.FORBIDDEN);
+    }
+
+    const roleIds = [];
+
+    entityData.roles.forEach((item) => {
+      roleIds.push(item.id);
+    });
+
+    return roleIds;
+  }
+
+  /**
    * 根据ID查找一个菜单项。
    * @param id 要查找的菜单项的ID。
    * @returns 找到的菜单项实体。
