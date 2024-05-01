@@ -186,7 +186,7 @@ export class MenuService {
   async findOne(id: string) {
     const entityData = await this.menuRepository.findOne({
       where: { id },
-      relations: ["roles"]
+      relations: ["roles", "parentMenu"]
     });
 
     const roleIds = [];
