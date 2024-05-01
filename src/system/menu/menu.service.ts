@@ -14,6 +14,8 @@ import { UpdateMenuDto } from "./dto/update-menu.dto";
 
 export interface ExtendedMenu extends Menu {
   parentId?: number | null | string;
+  parentName?: string;
+  roleIds?: string[];
 }
 
 /**
@@ -71,16 +73,22 @@ export class MenuService {
     // 如果存在父级（parentId 不为 null 或者空字符串），则把对应的项目存放到 children 数组中。
     const query = this.menuRepository
       .createQueryBuilder("menu")
-      .leftJoinAndSelect("menu.parentMenu", "parentMenu");
+      .leftJoinAndSelect("menu.parentMenu", "parentMenu")
+      .leftJoinAndSelect("menu.roles", "roles");
 
     const menuList = await query.getMany();
 
     const allMenus: ExtendedMenu[] = menuList.map((item: ExtendedMenu) => {
-      return {
-        ...item,
-        parentId: item.parentMenu?.id || "",
-        parentName: item.parentMenu?.name || ""
-      };
+      item.parentId = item.parentMenu?.id || "";
+      item.parentName = item.parentMenu?.name || "";
+      const roleIds = [];
+
+      item.roles.forEach((item) => {
+        roleIds.push(item.id);
+      });
+
+      item.roleIds = roleIds;
+      return item;
     });
 
     const rootMenus = allMenus.filter(
@@ -91,11 +99,55 @@ export class MenuService {
   }
 
   /**
-   * 查找当前用户的菜单项。
+   * 查找用户的菜单项。
    * @returns 菜单项的数组。
    */
-  async findMyMenu() {
-    // 获取当前登录的用户
+  async findMyMenu(userData: Record<string, any>) {
+    const userRolesIds: string[] = userData.roleIds;
+
+    // 查询用户拥有的菜单项
+    const roleEntites = await this.roleService.findSomeByIds(userRolesIds);
+
+    // 获取所有角色关联的菜单
+    const menusByRoles = await Promise.all(
+      roleEntites.map(async (item) => {
+        const roleMenus = await this.menuRepository.find({
+          where: { roles: item },
+          relations: ["parentMenu", "roles"]
+        });
+
+        return roleMenus;
+      })
+    );
+
+    // console.log(menusByRoles);
+    // 合并并去重
+    const mergedMenus: Menu[] = [];
+    for (const roleMenus of menusByRoles) {
+      mergedMenus.push(...roleMenus);
+    }
+    const uniqueMenus = Array.from(new Set(mergedMenus));
+
+    const allMenus: ExtendedMenu[] = uniqueMenus.map((item: Menu) => ({
+      ...item,
+      parentId: item.parentMenu?.id || "",
+      parentName: item.parentMenu?.name || "",
+      roleIds: []
+    }));
+
+    // 获取菜单的 roleIds
+    for (const menu of allMenus) {
+      menu.roles.forEach((role) => {
+        menu.roleIds.push(role.id);
+      });
+    }
+
+    // 建立树形结构
+    const rootMenus = allMenus.filter(
+      (menu) => menu.parentId === null || menu.parentId === ""
+    );
+
+    return buildTree(rootMenus, allMenus, undefined, "parentId");
   }
 
   /**

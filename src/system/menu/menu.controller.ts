@@ -1,8 +1,18 @@
-import { Controller, Get, Post, Body, Delete, Query } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Delete,
+  Query,
+  Req
+} from "@nestjs/common";
+
 import { MenuService } from "./menu.service";
 import { CreateMenuDto } from "./dto/create-menu.dto";
 import { UpdateMenuDto } from "./dto/update-menu.dto";
 import { ApiTags, ApiOperation, ApiQuery } from "@nestjs/swagger";
+import { NoAuthRequired } from "src/common/base/decorators/no-auth.decorator";
 
 // 菜单管理控制器
 @ApiTags("菜单管理")
@@ -27,8 +37,10 @@ export class MenuController {
   // 返回我这个身份应该获得的菜单
   @ApiOperation({ summary: "返回我这个身份应该获得的菜单" })
   @Get("findMyMenu")
-  findMyMenu() {
-    return this.menuService.findMyMenu();
+  @NoAuthRequired()
+  findMyMenu(@Req() request: Record<string, any>) {
+    const { userData } = request;
+    return this.menuService.findMyMenu(userData);
   }
 
   // 根据输入的菜单名字，找出这个菜单的所有角色
