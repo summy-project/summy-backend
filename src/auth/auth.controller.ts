@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { ApiTags, ApiOperation } from "@nestjs/swagger";
 
-import { NoAuthRequired } from "src/common/no-auth.decorator";
+import { NoAuthRequired } from "src/common/base/decorators/no-auth.decorator";
 
 import { AuthService } from "./auth.service";
 import { LoginDto } from "./dto/login.dto";
