@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { isArray } from "radash";
+import { isArray, unique } from "radash";
 
 import { buildTree } from "src/utils/tools";
 
@@ -120,27 +120,20 @@ export class MenuService {
       })
     );
 
-    // console.log(menusByRoles);
     // 合并并去重
     const mergedMenus: Menu[] = [];
     for (const roleMenus of menusByRoles) {
       mergedMenus.push(...roleMenus);
     }
-    const uniqueMenus = Array.from(new Set(mergedMenus));
+
+    // 利用 Radash 的 unique 函数进行去重。
+    const uniqueMenus = unique(mergedMenus, (item) => item.code);
 
     const allMenus: ExtendedMenu[] = uniqueMenus.map((item: Menu) => ({
       ...item,
       parentId: item.parentMenu?.id || "",
-      parentName: item.parentMenu?.name || "",
-      roleIds: []
+      parentName: item.parentMenu?.name || ""
     }));
-
-    // 获取菜单的 roleIds
-    for (const menu of allMenus) {
-      menu.roles.forEach((role) => {
-        menu.roleIds.push(role.id);
-      });
-    }
 
     // 建立树形结构
     const rootMenus = allMenus.filter(
