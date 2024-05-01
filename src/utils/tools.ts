@@ -67,3 +67,15 @@ export function getValueBySelectData(
   const resultValue = arr.find((item) => item.value === input);
   return resultValue ? resultValue.label : "未指定";
 }
+
+/**
+ * 判断两个数组之间是否有交集
+ * @param arr1 第一个数组
+ * @param arr2 第二个数组
+ * @returns 如果有，返回交集的数组元素，如果没有，返回空数组。
+ */
+export function getIntersectionFromArray(arr1: any[], arr2: any[]) {
+  const set1 = new Set(arr1);
+  const intersection = new Set(arr2.filter((item) => set1.has(item)));
+  return Array.from(intersection);
+}
