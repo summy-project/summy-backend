@@ -109,16 +109,17 @@ export class UserService {
     let query = this.userRepository
       .createQueryBuilder("user")
       .select([
-        "id",
-        "userName",
-        "createdTime",
-        "updatedTime",
-        "gender",
-        "status",
-        "realName",
-        "phone",
-        "remark"
+        "user.id",
+        "user.userName",
+        "user.createdTime",
+        "user.updatedTime",
+        "user.gender",
+        "user.status",
+        "user.realName",
+        "user.phone",
+        "user.remark"
       ])
+      .leftJoinAndSelect("user.roles", "roles")
       .where("user.hasDeleted = :hasDeleted", { hasDeleted: false });
 
     // 根据 DTO 中的属性进行模糊搜索条件构建
@@ -131,9 +132,15 @@ export class UserService {
       }
     });
 
-    const userList = await query.getRawMany();
+    const rawUserList = await query.getMany();
 
-    return userList;
+    const queryList = rawUserList.map((item) => {
+      return {
+        ...item,
+        roleIds: item.roles.map((role) => role.id)
+      };
+    });
+    return queryList;
   }
 
   /**
