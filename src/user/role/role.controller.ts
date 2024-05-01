@@ -73,14 +73,11 @@ export class RoleController {
   }
 
   /**
-   * 根据 POST 的 roleIds 查出所有符合条件的角色信息
+   * 提交一个角色数组，查出对应的角色数据。
+   * @param findSomeRolesDto 更新的角色信息对象
+   * @returns 角色信息列表
    */
-  /**
-   * 更新角色信息
-   * @param updateRoleDto 更新的角色信息对象
-   * @returns 更新后的角色信息
-   */
-  @ApiOperation({ summary: "更新角色信息" })
+  @ApiOperation({ summary: "提交一个角色数组，查出对应的角色数据。" })
   @ApiBody({ type: FindSomeRolesDto })
   @Post("findSomeByIds")
   findSomeByIds(@Body() findSomeRolesDto: FindSomeRolesDto) {
