@@ -66,6 +66,47 @@ export class MenuService {
   }
 
   /**
+   * 批量保存用户
+   * @param createUserDtos 批量保存用户
+   * @returns 返回保存后的用户
+   */
+  async batchCreate(createMenuDtos: CreateMenuDto[]) {
+    const results = [];
+
+    for (const item of createMenuDtos) {
+      const entityData = this.menuRepository.create(item);
+
+      if (
+        !isArray(item.roleIds) ||
+        !item.roleIds ||
+        item.roleIds.length === 0
+      ) {
+        throw new HttpException(
+          "用户角色不能为空！",
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
+      }
+
+      const rolesList = await this.roleService.findSomeByIds(item.roleIds);
+      entityData.roles = rolesList;
+
+      if (item.parentId && item.parentId !== "") {
+        const parentMenu = await this.menuRepository.findOne({
+          where: { id: item.parentId }
+        });
+        entityData.parentMenu = parentMenu;
+      } else {
+        entityData.parentMenu = null;
+      }
+
+      const savedMenu = await this.menuRepository.save(entityData);
+      results.push(savedMenu);
+    }
+
+    return results;
+  }
+
+  /**
    * 查找所有菜单项。
    * @returns 菜单项的数组。
    */
