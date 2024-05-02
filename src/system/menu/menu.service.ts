@@ -74,7 +74,8 @@ export class MenuService {
     const query = this.menuRepository
       .createQueryBuilder("menu")
       .leftJoinAndSelect("menu.parentMenu", "parentMenu")
-      .leftJoinAndSelect("menu.roles", "roles");
+      .leftJoinAndSelect("menu.roles", "roles")
+      .orderBy("menu.sort", "ASC");
 
     const menuList = await query.getMany();
 
@@ -113,7 +114,8 @@ export class MenuService {
       roleEntites.map(async (item) => {
         const roleMenus = await this.menuRepository.find({
           where: { roles: item },
-          relations: ["parentMenu", "roles"]
+          relations: ["parentMenu", "roles"],
+          order: { sort: "ASC" }
         });
 
         return roleMenus;
