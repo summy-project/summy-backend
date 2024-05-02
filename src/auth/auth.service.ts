@@ -136,10 +136,12 @@ export class AuthService {
 
     const createUsers = [setupDto.userData, setupDto.visitorData];
     const userData = await this.userService.batchCreate(createUsers);
+    const menus = await this.menuService.batchCreate(setupDto.menus);
 
     return {
       userData,
-      roles
+      roles,
+      menus
     };
   }
 
