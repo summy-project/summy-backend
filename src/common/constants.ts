@@ -44,3 +44,6 @@ export const ROLE_CODE_TYPE_DATA: SelectDataType[] = [
   { label: "游客", value: "visitor" },
   { label: "自定义", value: "custom" }
 ];
+
+// 正则：字母数字
+export const LETTER_NUMBER_PASS: RegExp = /^[A-Za-z0-9]+$/;
