@@ -11,6 +11,8 @@ import {
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiQuery, ApiBody } from "@nestjs/swagger";
 
+import { UsePermissionMenu } from "src/common/base/decorators/use-permission.decorator";
+
 import { CheckAdminGuard } from "src/common/base/guards/check-admin.guard";
 
 import { UserService } from "./user.service";
@@ -32,6 +34,7 @@ export class UserController {
   @ApiOperation({ summary: "新增用户" })
   @Post("create")
   @ApiBody({ type: CreateUserDto })
+  @UseGuards(CheckAdminGuard)
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
@@ -40,6 +43,8 @@ export class UserController {
    * 查询所有用户信息
    * @returns 所有用户信息列表
    */
+
+  @UsePermissionMenu({ menuName: "user_manage" })
   @Post("findAll")
   findAll(@Body() userFilterDto: UserFilterDto = {}) {
     return this.userService.findAll(userFilterDto);
@@ -66,6 +71,7 @@ export class UserController {
    */
   @Post("update")
   @ApiBody({ type: UpdateUserDto })
+  @UseGuards(CheckAdminGuard)
   update(@Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(updateUserDto);
   }
