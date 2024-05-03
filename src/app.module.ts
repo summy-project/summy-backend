@@ -8,13 +8,14 @@ import config from "./config";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 
+import { BaseGuard } from "./common/base/guards/base.guard";
 import { BaseInterceptor } from "./common/base/interceptors/base.interceptor";
 import { BaseFilter } from "./common/base/filters/base.filter";
 
 import { UserModule } from "./user/user.module";
 import { AuthModule } from "./auth/auth.module";
 import { SystemModule } from "./system/system.module";
-import { BaseGuard } from "./common/base/guards/base.guard";
+import { MenuModule } from "./system/menu/menu.module";
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { BaseGuard } from "./common/base/guards/base.guard";
     }),
     AuthModule,
     UserModule,
+    MenuModule,
     SystemModule
   ],
   controllers: [AppController],
