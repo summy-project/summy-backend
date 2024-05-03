@@ -193,7 +193,7 @@ export class MenuService {
    */
   async findRolesByMenuName(menuName: string) {
     const entityData = await this.menuRepository.findOne({
-      where: { name: menuName },
+      where: { code: menuName },
       relations: ["roles"]
     });
 
