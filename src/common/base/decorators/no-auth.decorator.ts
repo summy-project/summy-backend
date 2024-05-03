@@ -5,8 +5,8 @@ export interface NoAuthOptions {
 }
 
 export const NoAuthRequired = (options: NoAuthOptions = {}) => {
-  const metadataKey = options.allowNoVisitor
-    ? "noAuthAndNoVisitorRequired"
-    : "noAuthRequired";
-  return SetMetadata(metadataKey, true);
+  return SetMetadata(
+    "noAuthRequired",
+    options.allowNoVisitor ? "allowNoVisitor" : "allowVisitor"
+  );
 };
