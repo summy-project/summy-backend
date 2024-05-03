@@ -45,5 +45,6 @@ export const ROLE_CODE_TYPE_DATA: SelectDataType[] = [
   { label: "自定义", value: "custom" }
 ];
 
-// 正则：字母数字
-export const LETTER_NUMBER_PASS: RegExp = /^[A-Za-z0-9]+$/;
+// 正则：含有大小写字母和数字
+export const LETTER_NUMBER_PASS: RegExp =
+  /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]+$/;
